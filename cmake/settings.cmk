@@ -1,0 +1,39 @@
+
+set(CMAKE_CXX_FLAGS "${CFLAGS} -ggdb -Wall -Wno-switch")
+if (OPTIMIZE)
+  if (OPTIMIZE_LEVEL)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O${OPTIMIZE_LEVEL}")
+  else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+  endif()
+else()
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0")
+endif (OPTIMIZE)
+
+message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
+
+############################
+# Common Directories
+set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
+set(BUILD_DIR ${PROJECT_ROOT}/build)
+set(PROTOTYPE_DIR ${PROJECT_ROOT}/prototype)
+set(SRC_DIR ${PROJECT_ROOT}/src)
+set(TEST_DIR ${PROJECT_ROOT}/test)
+set(THIRD_PARTY_DIR ${PROJECT_ROOT}/third_party)
+set(TOOLS_DIR ${PROJECT_ROOT}/tools)
+
+############################
+# BUILD output
+# Configured directory for header files (from .h.in).
+set(INCLUDE_DIR ${BUILD_DIR}/include)
+# Directory for generated files:
+set(GEN_DIR ${BUILD_DIR}/genfiles)
+set(THIRD_PARTY_BUILD_DIR ${BUILD_DIR}/third_party)
+
+############################
+# Tools
+# cpplint.py tool
+set(CPPLINT ${TOOLS_DIR}/scripts/cpplint.py)
+
+
+add_custom_target(init)

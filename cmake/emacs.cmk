@@ -1,0 +1,28 @@
+# CMake scripts for generating Emacs related variables.
+
+# Variables used in the project template:
+# EMACS_PROJECT_INCLUDE_PATHS
+# see //third_party/emacs/.emacs-cmake-project.template.
+# This function set the variable used in the project template
+# which tells the Emacs IDE the paths to look for c/c++
+# include files.
+
+# Configures the Emacs project file settings.
+# Pass a list of include paths:
+#  First, list(APPEND p A B C).
+#  Then, call emacs_ide_project("${p}") to pass the list.
+function(emacs_ide_project include_paths sys_include_paths)
+  foreach (p ${include_paths})
+    set(EMACS_PROJECT_INCLUDE_PATHS "\"${p}\" ${EMACS_PROJECT_INCLUDE_PATHS}")
+  endforeach()
+  foreach (sp ${sys_include_paths})
+    set(EMACS_PROJECT_SYS_INCLUDE_PATHS
+      "\"${sp}\" ${EMACS_PROJECT_SYS_INCLUDE_PATHS}")
+  endforeach()
+  message(STATUS "Emacs include path: ${EMACS_PROJECT_INCLUDE_PATHS}")
+  message(STATUS "Emacs sys include path: ${EMACS_PROJECT_SYS_INCLUDE_PATHS}")
+  configure_file(
+    ${TOOLS_DIR}/emacs/.emacs-cmake-project.template
+    ${PROJECT_SOURCE_DIR}/project.el
+  )
+endfunction()

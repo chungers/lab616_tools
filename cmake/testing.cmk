@@ -1,0 +1,18 @@
+# Testing setup
+
+third_party(gmock)
+third_party(gtest)
+
+# Building GTests
+macro(cpp_gtest TARGET)
+  cpp_executable(${TARGET})
+  target_link_libraries(${TARGET} gtest gmock)
+  link_directories(${GTEST_LIB_DIR} ${GMOCK_LIB_DIR})
+  add_test(gtest_${TARGET} ${TEST_ROOT}/${TARGET})
+endmacro()
+
+# build_tests
+function(build_tests)
+  enable_testing()
+  option(TESTING "Turn on testing." on)
+endfunction()

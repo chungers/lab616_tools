@@ -1,0 +1,66 @@
+# Common functions for builds
+
+# Possible deprecation => Policy is to just put protos where they belong.
+set(COMMON_PROTOS ${LAB616}/common-protos)
+
+# Creates a static library of protobufs
+function(proto_library target proto_file inc_dirs)
+  find_package(Protobuf REQUIRED)
+  include_directories(${PROTOBUF_INCLUDE_DIRS} ${inc_dirs})
+  protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${proto_file})
+  add_library(${target} ${PROTO_SRCS} ${PROTO_HDRS})
+  install(TARGETS ${target} DESTINATION ${BUILD_DIR}/lib)
+endfunction(proto_library)
+
+# Depends on an external target, in a different project
+function(external_depends target target_paths)
+  set(plist ${ARGV})
+  list(REMOVE_AT plist 0)
+  foreach(path ${plist})
+    # path = //project/subdir1/subdir2:target
+    string(REGEX REPLACE "//" "" p ${path})  
+    # p = project/subdir1/subdir2:target
+    string(REGEX MATCH "^([a-zA-Z0-9/\\-]*)[^:]" ex_p ${p}) 
+    # ex_p = project/subdir1/subdir2
+    string(REGEX REPLACE "${ex_p}:" "" ex_t ${p}) # ex_t = target
+    # Get the top level project from ex_p, remove everything after first /:
+    string(REGEX REPLACE "/.*" "" ex_p ${ex_p})
+    message("External depends = " ${LAB616}/${ex_p} : ${ex_t})
+    string(REGEX REPLACE "/" "-" pp ${ex_p})
+    set(dep_target ${target}-${pp}-${ex_t})
+    add_custom_target(${dep_target}
+      make ${ex_t} 
+      WORKING_DIRECTORY ${LAB616}/${ex_p}
+      COMMENT "Building target ${ex_t} in ${ex_p}.")
+    add_dependencies(${target} ${dep_target})
+    include_directories(${LAB616}/${ex_p})
+    link_directories(${LAB616}/${ex_p})
+  endforeach()
+endfunction(external_depends)
+
+# Ex: third_party(gflags)
+function(third_party package)
+  include_directories(${THIRD_PARTY_BUILD_DIR}/include)
+  link_directories(${THIRD_PARTY_BUILD_DIR}/lib)
+  find_library(${package} 
+    NAMES lib${package}.a 
+    PATHS ${THIRD_PARTY_BUILD_DIR}/lib)
+  if (${${package}} MATCHES ${package}-NOTFOUND)
+    message(STATUS 
+      "THIRD_PARTY: 'make build-${package}' OR 'make init' to build all.")
+    add_custom_target(build-${package}
+      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR} 
+      COMMAND ${PROJECT_SOURCE_DIR}/../third_party/cpp/${package}/configure 
+      --prefix=${THIRD_PARTY_BUILD_DIR}
+      --libdir=${THIRD_PARTY_BUILD_DIR}/lib
+      --includedir=${THIRD_PARTY_BUILD_DIR}/include
+      COMMAND make install 
+      COMMAND make clean
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../third_party/cpp/${package})
+    add_dependencies(init build-${package})
+    if(${package}_deps)
+       message(STATUS "THIRD_PARTY: Adding dependencies ${${package}_deps}")
+       add_dependencies(build-${package} build-${${package}_deps})
+    endif()
+  endif()
+endfunction(third_party)
