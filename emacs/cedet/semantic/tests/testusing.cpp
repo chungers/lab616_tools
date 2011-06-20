@@ -51,23 +51,6 @@ namespace panda {
   }
 }
 
-namespace togglemoose {
-  
-  MyOtherClass::testToggle1() { //^1^
-    // Impl for testToggle1
-  }
-}
-
-togglemoose::MyOtherClass::testToggle2() { //^3^
-  // Impl for testToggle2
-}
-
-using togglemoose;
-
-MyOtherClass::testToggle3() { //^3^
-  // Impl for testToggle3
-}
-
 // Local using statements and aliased types
 // Code from David Engster
 
@@ -171,16 +154,4 @@ void func10()
   AnotherStruct s2;
   s2.//-14-
     ; //#14# ( "four" "three" )
-}
-
-// make sure unfound using statements don't crash stuff.
-using something::cantbe::Found;
-
-void unfoundfunc()
-{
-  NotFound notfound; // Variable can't be found.
-
-  notfound.//-15-
-    ; //#15# ( )  Nothing here since this is an undefined class
-
 }

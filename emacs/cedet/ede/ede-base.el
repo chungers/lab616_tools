@@ -3,7 +3,7 @@
 ;; Copyright (C) 2010 Eric M. Ludlam
 ;;
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: ede-base.el,v 1.5 2010/07/31 01:13:08 zappo Exp $
+;; X-RCS: $Id: ede-base.el,v 1.2 2010/02/08 23:46:03 zappo Exp $
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -88,9 +88,11 @@ which files this object is interested in."
 		:accessor ede-object-keybindings)
    (menu :allocation :class
 	 :initform ( [ "Debug target" ede-debug-target
-		       (ede-buffer-belongs-to-target-p) ]
+		       (and ede-object
+			    (obj-of-class-p ede-object ede-target)) ]
 		     [ "Run target" ede-run-target
-		       (ede-buffer-belongs-to-target-p) ]
+		       (and ede-object
+			    (obj-of-class-p ede-object ede-target)) ]
 		     )
 	 :documentation "Menu specialized to this type of target."
 	 :accessor ede-object-menu)
@@ -265,7 +267,9 @@ and target specific elements such as build variables.")
 	  "--"
 	  [ "Rescan Project Files" ede-rescan-toplevel t ]
 	  [ "Edit Projectfile" ede-edit-file-target
-	    (ede-buffer-belongs-to-project-p) ]
+	    (and ede-object
+		 (or (listp ede-object)
+		     (not (obj-of-class-p ede-object ede-project)))) ]
 	  )
 	 :documentation "Menu specialized to this type of target."
 	 :accessor ede-object-menu)
@@ -418,7 +422,7 @@ Specifying PARENT is useful for sub-sub projects relative to the root project."
 
 ;;;###autoload
 (defmethod ede-name ((this ede-target))
-  "Return the name of THIS target."
+  "Return the name of THIS targt."
   (oref this name))
 
 (defmethod ede-target-name ((this ede-target))
@@ -463,7 +467,8 @@ Not all buffers need headers, so return nil if no applicable."
 (defmethod ede-buffer-header-file ((this ede-target) buffer)
   "There are no default header files in EDE.
 Do a quick check to see if there is a Header tag in this buffer."
-  (with-current-buffer buffer
+  (save-excursion
+    (set-buffer buffer)
     (if (re-search-forward "::Header:: \\([a-zA-Z0-9.]+\\)" nil t)
 	(buffer-substring-no-properties (match-beginning 1)
 					(match-end 1))
@@ -491,7 +496,8 @@ Some projects may have multiple documentation files, so return a list."
 (defmethod ede-buffer-documentation-files ((this ede-target) buffer)
   "Check for some documentation files for THIS.
 Also do a quick check to see if there is a Documentation tag in this BUFFER."
-  (with-current-buffer buffer
+  (save-excursion
+    (set-buffer buffer)
     (if (re-search-forward "::Documentation:: \\([a-zA-Z0-9.]+\\)" nil t)
 	(buffer-substring-no-properties (match-beginning 1)
 					(match-end 1))
@@ -500,7 +506,7 @@ Also do a quick check to see if there is a Documentation tag in this BUFFER."
 	(ede-buffer-documentation-files cp (current-buffer))))))
 
 (defmethod ede-documentation ((this ede-project))
-  "Return a list of files that provide documentation.
+  "Return a list of files that provides documentation.
 Documentation is not for object THIS, but is provided by THIS for other
 files in the project."
   (let ((targ (oref this targets))
@@ -515,7 +521,7 @@ files in the project."
     found))
 
 (defmethod ede-documentation ((this ede-target))
-  "Return a list of files that provide documentation.
+  "Return a list of files that provides documentation.
 Documentation is not for object THIS, but is provided by THIS for other
 files in the project."
   nil)
@@ -565,7 +571,7 @@ files in the project."
 ;;
 ;;;###autoload
 (defun ede-adebug-project ()
-  "Run adebug against the current EDE project.
+  "Run adebug against the current ede project.
 Display the results as a debug list."
   (interactive)
   (require 'data-debug)
@@ -576,7 +582,7 @@ Display the results as a debug list."
 
 ;;;###autoload
 (defun ede-adebug-project-parent ()
-  "Run adebug against the current EDE parent project.
+  "Run adebug against the current ede parent project.
 Display the results as a debug list."
   (interactive)
   (require 'data-debug)
@@ -587,7 +593,7 @@ Display the results as a debug list."
 
 ;;;###autoload
 (defun ede-adebug-project-root ()
-  "Run adebug against the current EDE parent project.
+  "Run adebug against the current ede parent project.
 Display the results as a debug list."
   (interactive)
   (require 'data-debug)
@@ -599,7 +605,7 @@ Display the results as a debug list."
 
 ;;; Hooks & Autoloads
 ;;
-;;  These let us watch various activities, and respond appropriately.
+;;  These let us watch various activities, and respond apropriatly.
 
 (add-hook 'edebug-setup-hook
 	  (lambda ()

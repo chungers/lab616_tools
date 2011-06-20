@@ -6,7 +6,7 @@
 ;; Maintainer: Richard Kim <ryk@dspwiz.com>
 ;; Created: June 2002
 ;; Keywords: syntax
-;; X-RCS: $Id: wisent-python.wy,v 1.39 2010/03/26 22:18:06 xscript Exp $
+;; X-RCS: $Id: wisent-python.wy,v 1.35 2007/03/08 02:12:07 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -62,7 +62,7 @@
 %token <charquote>   BACKSLASH 	  "\\"
 %token <newline>     NEWLINE      "\n"
 %token <indentation> INDENT       "^\\s-+"
-%token <indentation> DEDENT       "[^:INDENT:]"
+%token <indentation> DEDENT       "[^:INDENT:]" 
 %token <indentation> INDENT_BLOCK "(INDENT DEDENT)"
 
 ;; -----------------------------
@@ -146,17 +146,13 @@
 %put     AND summary
 "Logical AND binary operator ... "
 
-%keyword AS          "as"
-%put     AS summary
-"EXPR as NAME makes value of EXPR available as variable NAME"
-
 %keyword ASSERT	     "assert"
 %put     ASSERT summary
 "Raise AssertionError exception if <expr> is false"
 
 %keyword BREAK	     "break"
 %put     BREAK summary
-"Terminate 'for' or 'while' loop"
+"Terminate 'for' or 'while loop"
 
 %keyword CLASS	     "class"
 %put     CLASS summary
@@ -164,7 +160,7 @@
 
 %keyword CONTINUE	     "continue"
 %put     CONTINUE summary
-"Skip to the next iteration of enclosing 'for' or 'while' loop"
+"Skip to the next interation of enclosing for or whilte loop"
 
 %keyword DEF	     "def"
 %put     DEF summary
@@ -188,11 +184,11 @@
 
 %keyword EXEC	     "exec"
 %put     EXEC summary
-"Dynamically execute Python code"
+"Dynamically execute python code"
 
 %keyword FINALLY	     "finally"
 %put     FINALLY summary
-"Specify code to be executed after 'try' statements whether or not an exception occurred"
+"Specify code to be executed after 'try' statements whether or not an exception occured"
 
 %keyword FOR	     "for"
 %put     FOR summary
@@ -223,7 +219,7 @@
 "Binary operator that tests for object equality"
 
 %keyword LAMBDA	     "lambda"
-%put     LAMBDA summary
+%put     LAMDA summary
 "Create anonymous function"
 
 %keyword NOT	     "not"
@@ -447,9 +443,7 @@ testlist_opt
 
 ;; yield_stmt: 'yield' testlist
 yield_stmt
-  : YIELD
-    (CODE-TAG $1 nil)
-  | YIELD testlist
+  : YIELD testlist
     (CODE-TAG $1 nil)
   ;
 
@@ -518,20 +512,20 @@ import_as_name_list
 
 ;; import_as_name: NAME [NAME NAME]
 import_as_name
-  : NAME as_name_opt
+  : NAME name_name_opt
     ()
   ;
 
-;; dotted_as_name: dotted_name [AS NAME]
+;; dotted_as_name: dotted_name [NAME NAME]
 dotted_as_name
-  : dotted_name as_name_opt
+  : dotted_name name_name_opt
   ;
 
-;; [AS NAME]
-as_name_opt
+;; [NAME NAME]
+name_name_opt
   : ;;EMPTY
-  | AS NAME
-    (identity $2)
+  | NAME NAME
+    ()
   ;
 
 ;; dotted_name: NAME ('.' NAME)*

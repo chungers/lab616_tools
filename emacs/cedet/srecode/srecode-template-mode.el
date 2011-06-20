@@ -18,7 +18,7 @@
 ;; Boston, MA 02110-1301, USA.
 
 ;;; Commentary:
-;;
+;; 
 
 (require 'srecode-template)
 (require 'semantic)
@@ -42,7 +42,7 @@
     (modify-syntax-entry ?\` "'"     table) ;; Prefix ` (backquote)
     (modify-syntax-entry ?\' "'"     table) ;; Prefix ' (quote)
     (modify-syntax-entry ?\, "'"     table) ;; Prefix , (comma)
-
+    
     table)
   "Syntax table used in semantic recoder macro buffers.")
 
@@ -60,17 +60,13 @@
      (3 font-lock-builtin-face ))
     ("^\\(sectiondictionary\\)\\s-+\""
      (1 font-lock-keyword-face))
-    ("^\\s\s*\\(section\\)\\s-+\""
-     (1 font-lock-keyword-face))
-    ("^\\s\s*\\(end\\)"
-     (1 font-lock-keyword-face))
     ("^\\(bind\\)\\s-+\""
      (1 font-lock-keyword-face))
     ;; Variable type setting
-    ("^\\s\s*\\(set\\)\\s-+\\(\\w+\\)\\s-+"
+    ("^\\(set\\)\\s-+\\(\\w+\\)\\s-+"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
-    ("^\\s\s*\\(show\\)\\s-+\\(\\w+\\)\\s-*$"
+    ("^\\(show\\)\\s-+\\(\\w+\\)\\s-*$"
      (1 font-lock-keyword-face)
      (2 font-lock-variable-name-face))
     ("\\<\\(macro\\)\\s-+\""
@@ -178,7 +174,7 @@ we can tell font lock about them.")
 
 ;;;###autoload
 (defun srecode-template-mode ()
-  "Major-mode for writing SRecode macros."
+  "Major-mode for writing srecode macros."
   (interactive)
   (kill-all-local-variables)
   (setq major-mode 'srecode-template-mode
@@ -224,10 +220,10 @@ we can tell font lock about them.")
 	(insert name)
 	(insert ee))))
   )
-
+  
 
 (defun srecode-macro-help ()
-  "Provide help for working with macros in a template."
+  "Provide help for working with macros in a tempalte."
   (interactive)
   (let* ((root 'srecode-template-inserter)
 	 (chl (aref (class-v root) class-children))
@@ -305,7 +301,7 @@ we can tell font lock about them.")
   "Non-nil if POINT is inside a macro bounds.
 If the ESCAPE_START and END are different sequences,
 a simple search is used.  If ESCAPE_START and END are the same
-characters, start at the beginning of the line, and find out
+characteres, start at the beginning of the line, and find out
 how many occur."
   (let ((tag (semantic-current-tag))
 	(es (regexp-quote (srecode-template-get-escape-start)))
@@ -318,7 +314,7 @@ how many occur."
 	    (beginning-of-line)
 	    (while (re-search-forward es start t 2))
 	    (if (re-search-forward es start t)
-		;; If there is a single, the answer is yes.
+		;; If there is a single, the the answer is yes.
 		t
 	      ;; If there wasn't another, then the answer is no.
 	      nil)
@@ -373,7 +369,7 @@ Moves out one named section."
 (define-mode-local-override semantic-beginning-of-context
   srecode-template-mode (&optional point)
   "Move to the beginning of the current context.
-Moves to the beginning of one named section."
+Moves the the beginning of one named section."
   (if (semantic-up-context point)
       t
     (let ((es (regexp-quote (srecode-template-get-escape-start)))
@@ -384,8 +380,8 @@ Moves to the beginning of one named section."
 
 (define-mode-local-override semantic-end-of-context
   srecode-template-mode (&optional point)
-  "Move to the end of the current context.
-Moves to the end of one named section."
+  "Move to the beginning of the current context.
+Moves the the beginning of one named section."
   (let ((name (srecode-up-context-get-name point))
 	(tag (semantic-current-tag))
 	(es  (regexp-quote (srecode-template-get-escape-start))))
@@ -413,7 +409,7 @@ Moves to the end of one named section."
       (if name
 	  ;; Lookup any subdictionaries in TAG.
 	  (let ((res nil))
-
+	    
 	    (while (and (not res) subdicts)
 	      ;; Find the subdictionary with the same name.  Those variables
 	      ;; are now local to this section.
@@ -423,7 +419,7 @@ Moves to the end of one named section."
 	    ;; Pre-pend our global vars.
 	    (append global res))
 	;; If we aren't in a subsection, just do the global variables
-	global
+	global	    
 	))))
 
 (define-mode-local-override semantic-get-local-arguments
@@ -443,7 +439,7 @@ Moves to the end of one named section."
       ;; Resolve args into our temp dictionary
       (srecode-resolve-argument-list argsym dict)
 
-      (maphash
+      (maphash 
        (lambda (key entry)
 	 (setq argvars
 	       (cons (semantic-tag-new-variable key nil entry)
@@ -538,13 +534,13 @@ section or ? for an ask variable."
 	   )
 
       (oset scope fullscope (append (oref scope localvar) globalvar))
-
+      
       (when prefix
 	;; First, try to find the variable for the first
 	;; entry in the prefix list.
 	(setq prefix-var (semantic-find-first-tag-by-name
 			  (car prefix) (oref scope fullscope)))
-
+	
 	(cond
 	 ((and (or (not key) (string= key "?"))
 	       (> (length prefix) 1))
@@ -580,7 +576,7 @@ section or ? for an ask variable."
 	    (let ((toc (srecode-template-find-templates-of-context
 			(read (semantic-tag-name prefix-context))))
 		  )
-	      (setq prefix-function
+	      (setq prefix-function 
 		    (or (semantic-find-first-tag-by-name
 			(car (last prefix)) toc)
 			;; Not in this buffer?  Search the master
@@ -626,7 +622,8 @@ section or ? for an ask variable."
 (define-mode-local-override semantic-analyze-possible-completions
   srecode-template-mode (context)
   "Return a list of possible completions based on NONTEXT."
-  (with-current-buffer (oref context buffer)
+  (save-excursion
+    (set-buffer (oref context buffer))
     (let* ((prefix (car (last (oref context :prefix))))
 	   (prefixstr (cond ((stringp prefix)
 			     prefix)
@@ -659,7 +656,7 @@ section or ? for an ask variable."
 	     )
 	    ((eq argtype 'macro)
 	     (let ((scope (oref context scope)))
-	       (setq matches
+	       (setq matches 
 		     (semantic-find-tags-for-completion
 		      prefixstr (oref scope fullscope))))
 	     )
@@ -752,8 +749,8 @@ When optional BUFFER is provided, search that buffer."
 ;;	;; Well, we have a mode, lets try turning on mmm-mode.
 ;;
 ;;	;; (mmm-mode-on)
-;;
-;;
+;;    
+;;	
 ;;
 ;;	))))
 ;;

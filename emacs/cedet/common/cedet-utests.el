@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008, 2009, 2010 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-utests.el,v 1.24 2010/04/23 00:14:21 zappo Exp $
+;; X-RCS: $Id: cedet-utests.el,v 1.22 2010/02/16 02:08:14 zappo Exp $
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -30,7 +30,6 @@
 ;;; Code:
 (defvar cedet-utest-test-alist
   '(
-    ("cedet versions" . cedet-version-print)
     ;;
     ;; COMMON
     ;;
@@ -55,9 +54,6 @@
 
     ;; Files
     ("cedet file conversion" . cedet-files-utest)
-
-    ;; Compatability APIs
-    ("cedet compatability fcns" . cedet-compat-utest)
 
     ;;
     ;; EIEIO
@@ -150,7 +146,7 @@ of just logging the error."
       ;; Cleanup stray input and events that are in the way.
       ;; Not doing this causes sit-for to not refresh the screen.
       ;; Doing this causes the user to need to press keys more frequently.
-      (when (and (cedet-called-interactively-p) (input-pending-p))
+      (when (and (interactive-p) (input-pending-p))
 	(if (fboundp 'read-event)
 	    (read-event)
 	  (read-char)))

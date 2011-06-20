@@ -2,8 +2,8 @@
 
 ;; Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010 Eric M. Ludlam
 
-;; Author: Eric M. Ludlam <zappo@projectile.siege-engine.com>
-;; Created: 2010-08-22 20:55:24-0400
+;; Author: David Chung <david@chunger.local>
+;; Created: 2010-03-13 01:13:03-0800
 ;; Keywords: syntax
 ;; X-RCS: $Id$
 
@@ -1244,9 +1244,7 @@
 	 (nth 7 vals))
 	(nth 0 vals)
 	(nth 10 vals)
-	(list
-	 (nth 4 vals))
-	(nth 9 vals))
+	(nth 4 vals))
       )
      (opt-stars
       opt-class
@@ -1268,9 +1266,7 @@
 	 (nth 6 vals))
 	(nth 0 vals)
 	(nth 9 vals)
-	(list
-	 (nth 4 vals))
-	(nth 8 vals))
+	(nth 4 vals))
       )
      ) ;; end func-decl
 

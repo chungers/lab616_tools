@@ -1,9 +1,9 @@
 ;;; cedet-cscope.el --- CScope support for CEDET
 ;;
-;; Copyright (C) 2009, 2010 Eric M. Ludlam
+;; Copyright (C) 2009 Eric M. Ludlam
 ;;
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
-;; X-RCS: $Id: cedet-cscope.el,v 1.7 2010/07/24 23:58:38 zappo Exp $
+;; X-RCS: $Id: cedet-cscope.el,v 1.2 2009/05/30 13:38:28 zappo Exp $
 ;;
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
@@ -27,7 +27,7 @@
 (require 'inversion)
 
 (defvar cedet-cscope-min-version "16.0"
-  "Minimum version of CScope required.")
+  "Minimum version of GNU global required.")
 
 ;;;###autoload
 (defcustom cedet-cscope-command "cscope"
@@ -74,18 +74,13 @@ SCOPE is the scope of the search, such as 'project or 'subdirs."
 	)
     (cedet-cscope-call (list "-d" "-L" idx searchtext))))
 
-(defun cedet-cscope-create (flags)
-  "Create a CScope database at the current directory.
-FLAGS are additional flags to pass to cscope beyond the
-options -cR."
-  (cedet-cscope-call (append (list "-cR") flags)))
-
 (defun cedet-cscope-call (flags)
   "Call CScope with the list of FLAGS."
   (let ((b (get-buffer-create "*CEDET CScope*"))
 	(cd default-directory)
 	)
-    (with-current-buffer b
+    (save-excursion
+      (set-buffer b)
       (setq default-directory cd)
       (erase-buffer))
     (apply 'call-process cedet-cscope-command
@@ -99,8 +94,8 @@ options -cR."
   "Expand the FILENAME with CScope.
 Return a fully qualified filename."
   (interactive "sFile: ")
-  (let* ((ans1 (with-current-buffer
-                   (cedet-cscope-call (list "-d" "-L" "-7" filename))
+  (let* ((ans1 (save-excursion
+		 (set-buffer (cedet-cscope-call (list "-d" "-L" "-7" filename)))
 		 (goto-char (point-min))
 		 (if (looking-at "[^ \n]*cscope: ")
 		     (error "CScope not available")
@@ -108,7 +103,7 @@ Return a fully qualified filename."
 	 (ans2 (mapcar (lambda (hit)
 			 (expand-file-name (car (split-string hit " "))))
 		       ans1)))
-    (when (cedet-called-interactively-p 'interactive)
+    (when (interactive-p)
       (if ans2
 	  (if (= (length ans2) 1)
 	      (message "%s" (car ans2))
@@ -122,25 +117,19 @@ Return a fully qualified filename."
 If DIR is not supplied, use the current default directory.
 This works by running cscope on a bogus symbol, and looking for
 the error code."
-  (interactive "DDirectory: ")
   (save-excursion
     (let ((default-directory (or dir default-directory)))
       (set-buffer (cedet-cscope-call (list "-d" "-L" "-7" "moose")))
       (goto-char (point-min))
-      (let ((ans (looking-at "[^ \n]*cscope: ")))
-	(if (cedet-called-interactively-p 'interactive)
-	    (if ans
-		(message "No support for CScope in %s" default-directory)
-	      (message "CScope is supported in %s" default-directory))
-	  (if ans
-	      nil
-	    t))))))
+      (if (looking-at "[^ \n]*cscope: ")
+	  nil
+	t))))
 
 ;;;###autoload
 (defun cedet-cscope-version-check (&optional noerror)
   "Check the version of the installed CScope command.
 If optional programatic argument NOERROR is non-nil, then
-instead of throwing an error if cscope isn't available, then
+instead of throwing an error if Global isn't available, then
 return nil."
   (interactive)
   (let ((b (condition-case nil
@@ -149,10 +138,11 @@ return nil."
 	(rev nil))
     (if (not b)
 	(progn
-	  (when (cedet-called-interactively-p 'interactive)
+	  (when (interactive-p)
 	    (message "CScope not found."))
 	  nil)
-      (with-current-buffer b
+      (save-excursion
+	(set-buffer b)
 	(goto-char (point-min))
 	(re-search-forward "cscope: version \\([0-9.]+\\)" nil t)
 	(setq rev (match-string 1))
@@ -162,17 +152,9 @@ return nil."
 	      (error "Version of CScope is %s.  Need at least %s"
 		     rev cedet-cscope-min-version))
 	  ;; Else, return TRUE, as in good enough.
-	  (when (cedet-called-interactively-p 'interactive)
+	  (when (interactive-p)
 	    (message "CScope %s  - Good enough for CEDET." rev))
 	  t)))))
-
-(defun cedet-cscope-create/update-database (&optional dir)
-  "Create a CScope database in DIR.
-CScope will automatically choose incremental rebuild if
-there is already a database in DIR."
-  (interactive "DDirectory: ")
-  (let ((default-directory dir))
-    (cedet-cscope-create nil)))
 
 (provide 'cedet-cscope)
 ;;; cedet-cscope.el ends here

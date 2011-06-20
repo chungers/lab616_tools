@@ -229,13 +229,3 @@ bool sneaky::bugalope::testAccess() //^9^
     ;
 }
 
-namespace deer {
-  moose::moose() : fAntlers(false) //^10^
-  {
-  }
-
-  moose::~moose() //^11^
-  {
-  }
-}
-

@@ -1,13 +1,13 @@
 ;;; mode-local.el --- Support for mode local facilities
 ;;
-;; Copyright (C) 2007, 2008, 2009, 2010 Eric M. Ludlam
+;; Copyright (C) 2007, 2008, 2009 Eric M. Ludlam
 ;; Copyright (C) 2004, 2005 David Ponce
 ;;
 ;; Author: David Ponce <david@dponce.com>
 ;; Maintainer: David Ponce <david@dponce.com>
 ;; Created: 27 Apr 2004
 ;; Keywords: syntax
-;; X-RCS: $Id: mode-local.el,v 1.28 2010/04/09 02:14:51 zappo Exp $
+;; X-RCS: $Id: mode-local.el,v 1.24 2009/09/11 23:44:53 zappo Exp $
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -36,7 +36,7 @@
 ;; that nature, and also provides reasonable defaults.
 ;;
 ;; There are buffer local variables, and frame local variables.
-;; This library gives the illusion of mode specific variables.
+;; This library give the illusion of mode specific variables.
 ;;
 ;; You should use a mode-local variable or override to allow extension
 ;; only if you expect a mode author to provide that extension.  If a
@@ -46,7 +46,10 @@
 ;; To Do:
 ;; Allow customization of a variable for a specific mode?
 ;;
-;; Add macro for defining the '-default' functionality.
+;; Add mecro for defining the '-default' functionality.
+
+;;; History:
+;;
 
 ;;; Code:
 (eval-when-compile (require 'cl))
@@ -109,9 +112,6 @@ Return nil if MODE has no parent."
   (or (get mode 'mode-local-parent)
       (get mode 'derived-mode-parent)))
 
-;; FIXME doc (and function name) seems wrong.
-;; Return a list of MODE and all its parent modes, if any.
-;; Lists parent modes first.
 (defun mode-local-equivalent-mode-p (mode)
   "Is the major-mode in the current buffer equivalent to a mode in MODES."
   (let ((modes nil))
@@ -152,25 +152,27 @@ which mode local bindings have been activated."
   (eq mode-local--init-mode major-mode))
 
 (defun mode-local-post-major-mode-change ()
-  "Initialize mode-local facilities.
-This is run from `find-file-hook', and from `post-command-hook'
-after changing the major mode."
+  "`post-command-hook' run when there is a `major-mode' change.
+This makes sure mode local init type stuff can occur."
   (remove-hook 'post-command-hook 'mode-local-post-major-mode-change nil)
   (let ((buffers mode-local-changed-mode-buffers))
     (setq mode-local-changed-mode-buffers nil)
     (mode-local-map-file-buffers
-     (lambda ()
-       ;; Make sure variables are set up for this mode.
-       (activate-mode-local-bindings)
-       (run-hooks 'mode-local-init-hook))
-     (lambda ()
-       (not (mode-local-initialized-p)))
+     #'(lambda ()
+         ;; Make sure variables are set up for this mode.
+         (activate-mode-local-bindings)
+         (run-hooks 'mode-local-init-hook))
+     #'(lambda ()
+         (not (mode-local-initialized-p)))
      buffers)))
 
 (defun mode-local-on-major-mode-change ()
   "Function called in `change-major-mode-hook'."
   (add-to-list 'mode-local-changed-mode-buffers (current-buffer))
   (add-hook 'post-command-hook 'mode-local-post-major-mode-change t nil))
+
+(add-hook 'find-file-hooks 'mode-local-post-major-mode-change)
+(add-hook 'change-major-mode-hook 'mode-local-on-major-mode-change)
 
 ;;; Mode lineage
 ;;
@@ -419,8 +421,8 @@ To use the symbol MODE (quoted), use `with-mode-local'."
 The current mode bindings are saved, BODY is evaluated, and the saved
 bindings are restored, even in case of an abnormal exit.
 Value is what BODY returns.
-This is like `with-mode-local-symbol', except that MODE is quoted
-and is not evaluated."
+This lis like `with-mode-local-symbol', except that MODE is quoted
+and is note evaluated."
    `(with-mode-local-symbol ',mode ,@body))
 (put 'with-mode-local 'lisp-indent-function 1)
 
@@ -484,12 +486,9 @@ DOCSTRING is optional."
 
 ;;; Function overloading
 ;;
-(defun make-obsolete-overload (old new &optional when)
-  "Mark OLD overload as obsoleted by NEW overload.
-WHEN is a string describing the first release where it was made obsolete."
+(defun make-obsolete-overload (old new)
+  "Mark OLD overload as obsoleted by NEW overload."
   (put old 'overload-obsoleted-by new)
-  (when when
-    (put old 'overload-obsoleted-since when))
   (put old 'mode-local-overload t)
   (put new 'overload-obsolete old))
 
@@ -636,15 +635,15 @@ PROMPT, INITIAL, HIST, and DEFAULT are the same as for `completing-read'."
 (defun overload-docstring-extension (overload)
   "Return the doc string that augments the description of OVERLOAD."
   (let ((doc "\n\This function can be overloaded\
- with `define-mode-local-override'.")
+ (see `define-mode-local-override' for details).")
         (sym (overload-obsoleted-by overload)))
     (when sym
-      (setq doc (format "%s\nIt has made the overload `%s' obsolete since %s."
-                        doc sym (get sym 'overload-obsoleted-since))))
+      (setq doc (format "%s\nIt makes the overload `%s' obsolete."
+                        doc sym)))
     (setq sym (overload-that-obsolete overload))
     (when sym
-      (setq doc (format "%s\nThis overload is obsolete since %s;\nUse `%s' instead."
-                        doc (get overload 'overload-obsoleted-since) sym)))
+      (setq doc (format "%s\nThis overload is obsoletes;\nUse `%s' instead."
+                        doc sym)))
     doc))
 
 (defun mode-local-augment-function-help (symbol)
@@ -779,7 +778,7 @@ invoked interactively."
   "Display mode local bindings active in BUFFER."
   (interactive "b")
   (when (setq buffer (get-buffer buffer))
-    (mode-local-describe-bindings-1 buffer (cedet-called-interactively-p 'any))))
+    (mode-local-describe-bindings-1 buffer (interactive-p))))
 
 (defun describe-mode-local-bindings-in-mode (mode)
   "Display mode local bindings active in MODE hierarchy."
@@ -789,8 +788,7 @@ invoked interactively."
           #'(lambda (s) (get s 'mode-local-symbol-table))
           t (symbol-name major-mode))))
   (when (setq mode (intern-soft mode))
-    (mode-local-describe-bindings-1 mode (cedet-called-interactively-p 'any))))
-
+    (mode-local-describe-bindings-1 mode (interactive-p))))
 
 ;;; Font-lock support
 ;;
@@ -871,22 +869,26 @@ invoked interactively."
 (defun mode-local-setup-edebug-specs ()
   "Define edebug specification for mode local macros."
   (def-edebug-spec setq-mode-local
-    (symbolp &rest symbolp form))
+    (symbolp &rest symbolp form)
+    )
   (def-edebug-spec defvar-mode-local
-    (&define symbolp name def-form [ &optional stringp ] ))
+    (&define symbolp name def-form [ &optional stringp ] )
+    )
   (def-edebug-spec defconst-mode-local
-    defvar-mode-local)
+    defvar-mode-local
+    )
   (def-edebug-spec define-overload
-    (&define name lambda-list stringp def-body))
+    (&define name lambda-list stringp def-body)
+    )
   (def-edebug-spec define-overloadable-function
-    (&define name lambda-list stringp def-body))
+    (&define name lambda-list stringp def-body)
+    )
   (def-edebug-spec define-mode-local-override
-    (&define name symbolp lambda-list stringp def-body)))
+    (&define name symbolp lambda-list stringp def-body)
+    )
+  )
 
 (add-hook 'edebug-setup-hook 'mode-local-setup-edebug-specs)
-
-(add-hook 'find-file-hook 'mode-local-post-major-mode-change)
-(add-hook 'change-major-mode-hook 'mode-local-on-major-mode-change)
 
 (provide 'mode-local)
 

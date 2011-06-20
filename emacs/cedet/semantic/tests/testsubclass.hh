@@ -63,9 +63,8 @@ namespace deer {
 
   class moose : public animal::moose {
   public:
-    moose();
-
-    ~moose();
+    moose() : fAntlers(false)
+    { }
 
     void setAntlers(bool);
     bool getAntlers();

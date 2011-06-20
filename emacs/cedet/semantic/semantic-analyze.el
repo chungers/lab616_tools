@@ -1,10 +1,10 @@
 ;;; semantic-analyze.el --- Analyze semantic tags against local context
 
-;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009, 2010 Eric M. Ludlam
+;;; Copyright (C) 2000, 2001, 2002, 2003, 2004, 2005, 2007, 2008, 2009 Eric M. Ludlam
 
 ;; Author: Eric M. Ludlam <zappo@gnu.org>
 ;; Keywords: syntax
-;; X-RCS: $Id: semantic-analyze.el,v 1.92 2010/04/18 21:45:44 zappo Exp $
+;; X-RCS: $Id: semantic-analyze.el,v 1.87 2009/09/12 02:32:43 zappo Exp $
 
 ;; This file is not part of GNU Emacs.
 
@@ -44,7 +44,7 @@
 ;; tag - A single entity
 ;; prefix - The beginning of a symbol, usually used to look up something
 ;;       incomplete.
-;; type - The name of a datatype in the language.
+;; type - The name of a datatype in the langauge.
 ;; metatype - If a type is named in a declaration like:
 ;;       struct moose somevariable;
 ;;       that name "moose" can be turned into a concrete type.
@@ -67,12 +67,9 @@
 ;;       constant.  These need to be returned as there would be no
 ;;       other possible completions.
 ;;
-
-
 (require 'inversion)
 (eval-and-compile
   (inversion-require 'eieio "1.0"))
-(eval-when-compile (require 'cl))
 (require 'semantic)
 (require 'semantic-format)
 (require 'semantic-ctxt)
@@ -89,7 +86,7 @@
 
 (defun semantic-analyze-push-error (err)
   "Push the error in ERR-DATA onto the error stack.
-Argument ERR."
+Argument ERR"
   (push err semantic-analyze-error-stack))
 
 ;;; Analysis Classes
@@ -130,7 +127,7 @@ See `semantic-analyze-scoped-tags' for details.")
    (errors :initarg :errors
 	   :documentation "Any errors thrown an caught during analysis.")
    )
-  "Base analysis data for any context.")
+  "Base analysis data for a any context.")
 
 (defclass semantic-analyze-context-assignment (semantic-analyze-context)
   ((assignee :initarg :assignee
@@ -138,7 +135,7 @@ See `semantic-analyze-scoped-tags' for details.")
 	     :documentation "A sequence of tags for an assignee.
 This is a variable into which some value is being placed.  The last
 item in the list is the variable accepting the value.  Earlier
-tags represent the variables being dereferenced to get to the
+tags represent the variables being derefernece to get to the
 assignee."))
   "Analysis class for a value in an assignment.")
 
@@ -241,7 +238,7 @@ finding the details on the first element of SEQUENCE in case
 it is not found in the global set of tables.
 Optional argument SCOPE are additional terminals to search which are currently
 scoped.  These are not local variables, but symbols available in a structure
-which doesn't need to be dereferenced.
+which doesn't need to be dereferneced.
 Optional argument TYPERETURN is a symbol in which the types of all found
 will be stored.  If nil, that data is thrown away.
 Optional argument THROWSYM specifies a symbol the throw on non-recoverable error.")
@@ -259,7 +256,7 @@ Optional argument THROWSYM specifies a symbol the throw on non-recoverable error
 	(tag nil)			; tag return list
 	(tagtype nil)			; tag types return list
 	(fname nil)
-	(miniscope (when scope (clone scope)))
+	(miniscope (clone scope))
 	)
     ;; First order check.  Is this wholely contained in the typecache?
     (setq tmp (semanticdb-typecache-find sequence))
@@ -303,12 +300,11 @@ Optional argument THROWSYM specifies a symbol the throw on non-recoverable error
 	      ;; and we can use it directly.
 	      (cond ((semantic-tag-of-class-p tmp 'type)
 		     ;; update the miniscope when we need to analyze types directly.
-		     (when miniscope
-		       (let ((rawscope
-			      (apply 'append
-				     (mapcar 'semantic-tag-type-members
-					     tagtype))))
-			 (oset miniscope fullscope rawscope)))
+		     (let ((rawscope
+			    (apply 'append
+				   (mapcar 'semantic-tag-type-members
+					   tagtype))))
+		       (oset miniscope fullscope rawscope))
 		     ;; Now analayze the type to remove metatypes.
 		     (or (semantic-analyze-type tmp miniscope)
 			 tmp))
@@ -352,13 +348,13 @@ Optional argument THROWSYM specifies a symbol the throw on non-recoverable error
 
 (defun semantic-analyze-find-tag (name &optional tagclass scope)
   "Return the first tag found with NAME or nil if not found.
-Optional argument TAGCLASS specifies the class of tag to return,
-such as 'function or 'variable.
+Optional argument TAGCLASS specifies the class of tag to return, such
+as 'function or 'variable.
 Optional argument SCOPE specifies a scope object which has
 additional tags which are in SCOPE and do not need prefixing to
 find.
 
-This is a wrapper on top of semanticdb, semanticdb typecache,
+This is a wrapper on top of semanticdb, semanticdb-typecache,
 semantic-scope, and semantic search functions.  Almost all
 searches use the same arguments."
   (let ((namelst (if (consp name) name ;; test if pre-split.
@@ -423,7 +419,7 @@ to calculate the context information.  The purpose for this function is
 to provide a large number of non-cached analysis for filtering symbols."
   ;; Only do this in a Semantic enabled buffer.
   (when (not (semantic-active-p))
-    (error "Cannot analyze buffers not supported by Semantic"))
+    (error "Cannot analyze buffers not supported by Semantic."))
   ;; Always refresh out tags in a safe way before doing the
   ;; context.
   (semantic-refresh-tags-safe)
@@ -491,7 +487,7 @@ if a cached copy of the return object is found."
   (interactive "d")
   ;; Only do this in a Semantic enabled buffer.
   (when (not (semantic-active-p))
-    (error "Cannot analyze buffers not supported by Semantic"))
+    (error "Cannot analyze buffers not supported by Semantic."))
   ;; Always refresh out tags in a safe way before doing the
   ;; context.
   (semantic-refresh-tags-safe)
@@ -512,7 +508,7 @@ if a cached copy of the return object is found."
 					     'current-context
 					     'exit-cache-zone)))
 	  ;; Check for interactivity
-	  (when (cedet-called-interactively-p 'any)
+	  (when (interactive-p)
 	    (if answer
 		(semantic-analyze-pop-to-context answer)
 	      (message "No Context."))
@@ -716,7 +712,8 @@ Optional argument CTXT is the context to show."
 ;;
 (defmethod semantic-analyze-pulse ((context semantic-analyze-context))
   "Pulse the region that CONTEXT affects."
-  (with-current-buffer (oref context :buffer)
+  (save-excursion
+    (set-buffer (oref context :buffer))
     (let ((bounds (oref context :bounds)))
       (when bounds
 	(pulse-momentary-highlight-region (car bounds) (cdr bounds))))))
