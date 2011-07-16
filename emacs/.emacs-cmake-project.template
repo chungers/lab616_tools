@@ -15,14 +15,14 @@
 (column-number-mode 1)
 (global-hl-line-mode 1) ;; highlights current line
 (set-background-color "black")
-(set-foreground-color "LightYellow2")
-(set-cursor-color "DarkRed")
+(set-foreground-color "white")
+(set-cursor-color "DarkBlue")
 ;; Sets the colors for all frames.
 (setq default-frame-alist
       (append default-frame-alist
-              '((foreground-color . "LightYellow2")
+              '((foreground-color . "white")
                 (background-color . "black")
-                (cursor-color . "DarkRed")
+                (cursor-color . "DarkBlue")
                 )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
