@@ -122,7 +122,6 @@
                  "/build"
                  "/build/include"
                  "/build/genfiles"
-                 "/_genfiles"
                  @EMACS_PROJECT_INCLUDE_PATHS@
                  )
  :system-include-path '(@EMACS_PROJECT_SYS_INCLUDE_PATHS@)
