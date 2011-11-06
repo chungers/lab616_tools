@@ -137,7 +137,9 @@ it blindly to other people's files can cause enormously messy diffs!"
             '(("\\.cmake\\'" . cmake-mode))
             '(("\\.cmk\\'" . cmake-mode))
             '(("\\.proto\\'" . c++-mode))
-            '(("\\.lua$" . lua-mode))
+            '(("\\.R\\'" . c++-mode))
+            '(("\\.r\\'" . c++-mode))
+;           '(("\\.lua$" . lua-mode))
             auto-mode-alist))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
