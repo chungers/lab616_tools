@@ -148,15 +148,15 @@ it blindly to other people's files can cause enormously messy diffs!"
  "@TOOLS_DIR@/emacs/cedet/common/cedet.el")
 (require 'ede)
 (require 'semantic-gcc)
-(require 'semanticdb)
-(require 'semantic-decorate-include)
+;(require 'semanticdb)
+;(require 'semantic-decorate-include)
 
 (global-ede-mode 1)                       ; Enable Project management system
 (global-srecode-minor-mode 1)             ; Template insertion menu
-(global-semanticdb-minor-mode 1)
+;(global-semanticdb-minor-mode 1)
 
-(semantic-load-enable-code-helpers)       ; Prototype help and smart completion
-(semantic-load-enable-gaudy-code-helpers) ;
+;(semantic-load-enable-code-helpers)       ; Prototype help and smart completion
+;(semantic-load-enable-gaudy-code-helpers) ;
 
 (defun my-cedet-hook ()
   ;; Code completion - symbol.
