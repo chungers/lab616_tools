@@ -129,6 +129,10 @@ it blindly to other people's files can cause enormously messy diffs!"
 (autoload 'cmake-mode
  "@TOOLS_DIR@/emacs/cmake-mode.el" t)
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; ESS - Emacs + R Mode
+(load "@TOOLS_DIR@/emacs/ess/lisp/ess-site")
+(require 'ess-site)
 
 (setq auto-mode-alist
         (append
@@ -137,8 +141,8 @@ it blindly to other people's files can cause enormously messy diffs!"
             '(("\\.cmake\\'" . cmake-mode))
             '(("\\.cmk\\'" . cmake-mode))
             '(("\\.proto\\'" . c++-mode))
-            '(("\\.R\\'" . c++-mode))
-            '(("\\.r\\'" . c++-mode))
+            '(("\\.R\\'" . r-mode))
+            '(("\\.r\\'" . r-mode))
 ;           '(("\\.lua$" . lua-mode))
             auto-mode-alist))
 
