@@ -50,13 +50,13 @@ function(third_party package)
       "THIRD_PARTY: 'make build-${package}' OR 'make init' to build all.")
     add_custom_target(build-${package}
       COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR} 
-      COMMAND ${PROJECT_SOURCE_DIR}/../third_party/cpp/${package}/configure 
+      COMMAND ${PROJECT_SOURCE_DIR}/../third_party/${package}/configure 
       --prefix=${THIRD_PARTY_BUILD_DIR}
       --libdir=${THIRD_PARTY_BUILD_DIR}/lib
       --includedir=${THIRD_PARTY_BUILD_DIR}/include
       COMMAND make install 
       COMMAND make clean
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../third_party/cpp/${package})
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../third_party/${package})
     add_dependencies(init build-${package})
     if(${package}_deps)
        message(STATUS "THIRD_PARTY: Adding dependencies ${${package}_deps}")
