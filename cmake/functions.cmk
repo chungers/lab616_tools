@@ -18,9 +18,9 @@ function(external_depends target target_paths)
   list(REMOVE_AT plist 0)
   foreach(path ${plist})
     # path = //project/subdir1/subdir2:target
-    string(REGEX REPLACE "//" "" p ${path})  
+    string(REGEX REPLACE "//" "" p ${path})
     # p = project/subdir1/subdir2:target
-    string(REGEX MATCH "^([a-zA-Z0-9/\\-]*)[^:]" ex_p ${p}) 
+    string(REGEX MATCH "^([a-zA-Z0-9/\\-]*)[^:]" ex_p ${p})
     # ex_p = project/subdir1/subdir2
     string(REGEX REPLACE "${ex_p}:" "" ex_t ${p}) # ex_t = target
     # Get the top level project from ex_p, remove everything after first /:
@@ -29,7 +29,7 @@ function(external_depends target target_paths)
     string(REGEX REPLACE "/" "-" pp ${ex_p})
     set(dep_target ${target}-${pp}-${ex_t})
     add_custom_target(${dep_target}
-      make ${ex_t} 
+      make ${ex_t}
       WORKING_DIRECTORY ${LAB616}/${ex_p}
       COMMENT "Building target ${ex_t} in ${ex_p}.")
     add_dependencies(${target} ${dep_target})
@@ -42,21 +42,21 @@ endfunction(external_depends)
 function(third_party package)
   include_directories(${THIRD_PARTY_BUILD_DIR}/include)
   link_directories(${THIRD_PARTY_BUILD_DIR}/lib)
-  find_library(${package} 
-    NAMES lib${package}.a 
+  find_library(${package}
+    NAMES lib${package}.a
     PATHS ${THIRD_PARTY_BUILD_DIR}/lib)
   if (${${package}} MATCHES ${package}-NOTFOUND)
-    message(STATUS 
+    message(STATUS
       "THIRD_PARTY: 'make build-${package}' OR 'make init' to build all.")
     add_custom_target(build-${package}
-      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR} 
-      COMMAND ${PROJECT_SOURCE_DIR}/../third_party/${package}/configure 
+      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR}
+      COMMAND ${PROJECT_SOURCE_DIR}/third_party/${package}/configure
       --prefix=${THIRD_PARTY_BUILD_DIR}
       --libdir=${THIRD_PARTY_BUILD_DIR}/lib
       --includedir=${THIRD_PARTY_BUILD_DIR}/include
-      COMMAND make install 
+      COMMAND make install
       COMMAND make clean
-      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/../third_party/${package})
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/third_party/${package})
     add_dependencies(init build-${package})
     if(${package}_deps)
        message(STATUS "THIRD_PARTY: Adding dependencies ${${package}_deps}")
@@ -64,3 +64,33 @@ function(third_party package)
     endif()
   endif()
 endfunction(third_party)
+
+function(third_party_plain_make package)
+  include_directories(${THIRD_PARTY_BUILD_DIR}/include)
+  link_directories(${THIRD_PARTY_BUILD_DIR}/lib)
+  find_library(${package}
+    NAMES lib${package}.a
+    PATHS ${THIRD_PARTY_BUILD_DIR}/lib)
+  if (${${package}} MATCHES ${package}-NOTFOUND)
+    message(STATUS
+      "THIRD_PARTY: 'make build-${package}' OR 'make init' to build all.")
+    add_custom_target(build-${package}
+      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR}
+      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR}/lib
+      COMMAND mkdir -p ${THIRD_PARTY_BUILD_DIR}/include
+      COMMAND make
+      COMMAND cp lib*.a ${THIRD_PARTY_BUILD_DIR}/lib
+      COMMAND cp -r include/* ${THIRD_PARTY_BUILD_DIR}/include
+      COMMAND make clean
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/third_party/${package})
+    add_custom_target(clean-${package}
+      COMMAND rm -rf ${THIRD_PARTY_BUILD_DIR}/lib/lib${package}.a
+      COMMAND rm -rf ${THIRD_PARTY_BUILD_DIR}/include/${package}
+      WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/third_party/${package})
+    add_dependencies(init build-${package})
+    if(${package}_deps)
+       message(STATUS "THIRD_PARTY: Adding dependencies ${${package}_deps}")
+       add_dependencies(build-${package} build-${${package}_deps})
+    endif()
+  endif()
+endfunction(third_party_plain_make)
