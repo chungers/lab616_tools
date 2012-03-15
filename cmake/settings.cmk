@@ -16,6 +16,7 @@ message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 # Common Directories
 set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
 set(BUILD_DIR ${PROJECT_ROOT}/build)
+set(INSTALL_DIR ${PROJECT_ROOT}/install)
 set(PROTOTYPE_DIR ${PROJECT_ROOT}/prototype)
 set(SRC_DIR ${PROJECT_ROOT}/src)
 set(TEST_DIR ${PROJECT_ROOT}/test)

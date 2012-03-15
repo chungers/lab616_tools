@@ -11,7 +11,7 @@ macro(cpp_gtest TARGET)
   target_link_libraries(${TARGET} gflags glog gtest)
   link_directories(${GTEST_LIB_DIR})
   add_test(gtest_${TARGET} ${TEST_ROOT}/${TARGET})
-  install(TARGETS ${TARGET} DESTINATION ${BUILD_DIR}/test)
+  install(TARGETS ${TARGET} DESTINATION ${INSTALL_DIR}/test)
 endmacro()
 
 # build_tests

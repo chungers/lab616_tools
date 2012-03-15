@@ -15,7 +15,7 @@ macro(ext_library target sources)
   else(EXISTS ${BUILD_DIR}/lib/lib${target}.a)
     add_library(${ARGV})
     # Install the library
-    install(TARGETS ${target} DESTINATION ${BUILD_DIR}/lib)
+    install(TARGETS ${target} DESTINATION ${INSTALL_DIR}/lib)
   endif(EXISTS ${BUILD_DIR}/lib/lib${target}.a)
 endmacro(ext_library)
 
@@ -31,7 +31,7 @@ macro(cpp_library target)
   target_link_libraries(${target} ${${target}_libs})
   add_custom_target(${target}_lint
     ${CPPLINT} ${${target}}_incs ${${target}_srcs})
-  install(TARGETS ${target} DESTINATION ${BUILD_DIR}/lib)
+  install(TARGETS ${target} DESTINATION ${INSTALL_DIR}/lib)
 endmacro(cpp_library)
 
 # Building an executable
@@ -48,7 +48,7 @@ macro(cpp_executable target)
     ${CPPLINT} ${${target}}_incs ${${target}_srcs})
   set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}")
-  install(TARGETS ${target} DESTINATION ${BUILD_DIR}/bin)
+  install(TARGETS ${target} DESTINATION ${INSTALL_DIR}/bin)
 endmacro(cpp_executable)
 
 # Running cpplint
