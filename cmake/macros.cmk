@@ -61,7 +61,7 @@ macro(cpp_executable_noinstall target)
     ${CPPLINT} ${${target}}_incs ${${target}_srcs})
   set_target_properties(${target} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}")
-endmacro(cpp_executable)
+endmacro(cpp_executable_noinstall)
 
 # Running cpplint
 # Given a target of FOO, a FOO_lint target is automatically generated.
