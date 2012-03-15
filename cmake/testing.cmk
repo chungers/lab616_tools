@@ -5,7 +5,7 @@
 
 # Building GTests
 macro(cpp_gtest TARGET)
-  cpp_executable(${TARGET})
+  cpp_executable_noinstall(${TARGET})
   #target_link_libraries(${TARGET} gtest gmock)
   #link_directories(${GTEST_LIB_DIR} ${GMOCK_LIB_DIR})
   target_link_libraries(${TARGET} gflags glog gtest)

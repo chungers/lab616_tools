@@ -51,6 +51,18 @@ macro(cpp_executable target)
   install(TARGETS ${target} DESTINATION ${INSTALL_DIR}/bin)
 endmacro(cpp_executable)
 
+macro(cpp_executable_noinstall target)
+  include_directories(${target} ${${target}_incs})
+  link_directories(${BUILD_DIR}/lib ${THIRD_PARTY_BUILD_DIR}/lib)
+  add_executable(${target} ${${target}_srcs})
+  add_dependencies(${target} init)
+  target_link_libraries(${target} ${${target}_libs})
+  add_custom_target(${target}_lint
+    ${CPPLINT} ${${target}}_incs ${${target}_srcs})
+  set_target_properties(${target} PROPERTIES
+    RUNTIME_OUTPUT_DIRECTORY "${BUILD_DIR}")
+endmacro(cpp_executable)
+
 # Running cpplint
 # Given a target of FOO, a FOO_lint target is automatically generated.
 macro(runlint targets)
