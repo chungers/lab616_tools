@@ -109,6 +109,16 @@ it blindly to other people's files can cause enormously messy diffs!"
  "@TOOLS_DIR@/emacs/git-emacs")
 (provide 'git-emacs)
 
+; Useful for refreshing buffers after git pull
+(defun revert-all-buffers ()
+    "Refreshes all open buffers from their respective files."
+    (interactive)
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when (and (buffer-file-name) (not (buffer-modified-p)))
+          (revert-buffer t t t) )))
+    (message "Refreshed open files.") )
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Google C++ styles
 (load-file

@@ -81,3 +81,12 @@ it blindly to other people's files can cause enormously messy diffs!"
     ((looking-at "\\s\)") (forward-char 1) (backward-list 1))
     (t                    (self-insert-command (or arg 1))) ))
 (global-set-key "%" `goto-match-paren)
+
+(defun revert-all-buffers ()
+    "Refreshes all open buffers from their respective files."
+    (interactive)
+    (dolist (buf (buffer-list))
+      (with-current-buffer buf
+        (when (and (buffer-file-name) (not (buffer-modified-p)))
+          (revert-buffer t t t) )))
+    (message "Refreshed open files.") )
