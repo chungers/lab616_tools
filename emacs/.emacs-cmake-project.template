@@ -205,6 +205,15 @@ it blindly to other people's files can cause enormously messy diffs!"
 )
 (add-hook 'c-mode-common-hook 'my-cedet-hook)
 
+;; Compilation mode hook
+(defun my-compile-hook ()
+  ;; compile - go to error
+  (local-set-key "\C-cg" 'compile-goto-error)
+  (local-set-key "\C-cn" 'compilation-next-error)
+  (local-set-key "\C-cp" 'compilation-previous-error)
+)
+(add-hook 'compilation-mode-hook 'my-compile-hook)
+
 (ede-cpp-root-project
  "@PROJECT_NAME@"
  :file "@PROJECT_SOURCE_DIR@/CMakeLists.txt"
