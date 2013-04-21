@@ -17,10 +17,9 @@ message(STATUS "CMAKE_CXX_FLAGS=${CMAKE_CXX_FLAGS}")
 set(PROJECT_ROOT ${PROJECT_SOURCE_DIR})
 set(BUILD_DIR ${PROJECT_ROOT}/build)
 set(INSTALL_DIR ${PROJECT_ROOT}/install)
-set(PROTOTYPE_DIR ${PROJECT_ROOT}/prototype)
-set(SRC_DIR ${PROJECT_ROOT}/src)
-set(PROTOTYPE_DIR ${PROJECT_ROOT}/prototype)
-set(TEST_DIR ${PROJECT_ROOT}/test)
+set(PROTOTYPE_DIR ${PROJECT_ROOT}/prototype/cpp)
+set(SRC_DIR ${PROJECT_ROOT}/src/cpp)
+set(TEST_DIR ${PROJECT_ROOT}/test/cpp)
 set(THIRD_PARTY_DIR ${PROJECT_ROOT}/third_party)
 set(TOOLS_DIR ${PROJECT_ROOT}/tools)
 set(R_PKGS_DIR ${PROJECT_ROOT}/R-packages)
@@ -28,9 +27,9 @@ set(R_PKGS_DIR ${PROJECT_ROOT}/R-packages)
 ############################
 # BUILD output
 # Configured directory for header files (from .h.in).
-set(INCLUDE_DIR ${BUILD_DIR}/include)
+set(INCLUDE_DIR ${BUILD_DIR}/cpp/include)
 # Directory for generated files:
-set(GEN_DIR ${BUILD_DIR}/genfiles)
+set(GEN_DIR ${BUILD_DIR}/cpp/genfiles)
 set(THIRD_PARTY_BUILD_DIR ${BUILD_DIR}/third_party)
 
 ############################
