@@ -38,7 +38,7 @@ that uses 'font-lock-warning-face'."
 (font-lock-add-keywords 'java-mode (font-lock-width-keyword 80))
 (font-lock-add-keywords 'python-mode (font-lock-width-keyword 80))
 (custom-set-faces
-   '(my-tab-face            ((((class color)) (:background "white"))) t)
+   '(my-tab-face            ((((class color)) (:foreground "blue" :underline t))) t)
    '(my-trailing-space-face ((((class color)) (:background "red"))) t)
    '(my-long-line-face ((((class color)) (:background "blue" :underline t))) t))
 (add-hook 'font-lock-mode-hook
