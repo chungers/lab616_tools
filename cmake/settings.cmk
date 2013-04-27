@@ -23,6 +23,7 @@ set(TEST_DIR ${PROJECT_ROOT}/test/cpp)
 set(THIRD_PARTY_DIR ${PROJECT_ROOT}/third_party)
 set(TOOLS_DIR ${PROJECT_ROOT}/tools)
 set(R_PKGS_DIR ${PROJECT_ROOT}/R-packages)
+set(GOROOT /usr/local/go)
 
 ############################
 # BUILD output

@@ -128,6 +128,11 @@ it blindly to other people's files can cause enormously messy diffs!"
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; go mode
+(setq load-path (cons "@GOROOT@/misc/emacs" load-path))
+(require 'go-mode-load)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Lua Mode
 ;(autoload 'lua-mode
 ; "@TOOLS_DIR@/emacs/lua-mode/lua-mode.el" t)
